@@ -1,0 +1,43 @@
+clipsniff/README
+
+ ClipSniff
+
+   By Thomas Habets <thomas@habets.pp.se>
+
+ http://www.habets.pp.se/synscan/
+ http://github.com/ThomasHabets/clipsniff
+ git clone git://github.com/ThomasHabets/clipsniff.git
+
+
+Introduction
+------------
+Sniff clipboard of an X session.
+
+
+Dependencies
+------------
+X development libraries.
+
+Debian: apt-get install libx11-dev
+
+
+Installing
+----------
+./configure
+make
+make install
+
+CREATE TABLE clipboard(
+       ts datetime not null,
+       name text not null,
+       data text not null);
+
+
+Helpful links when coding Xlib
+------------------------------
+* http://www.gelato.unsw.edu.au/IA64wiki/XGetWindowProperty
+* http://www.sbin.org/doc/Xlib/
+* http://www.jwz.org/doc/x-cut-and-paste.html
+
+----------------------------------------------------------------------------
+Send questions/suggestions/patches/rants/money/ciscos to thomas@habets.pp.se
