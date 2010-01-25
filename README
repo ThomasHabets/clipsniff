@@ -11,14 +11,17 @@ clipsniff/README
 
 Introduction
 ------------
-Sniff clipboard of an X session.
+Sniff clipboard of an X session and store it into a sqlite3 database.
+
+Or just show what's there right now.
 
 
 Dependencies
 ------------
 X development libraries.
+SQLite3
 
-Debian: apt-get install libx11-dev
+Debian: apt-get install libx11-dev libsqlite3-dev
 
 
 Installing
