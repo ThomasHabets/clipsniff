@@ -24,6 +24,10 @@
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -40,7 +44,22 @@
 #define END_NAMESPACE(x) }
 
 BEGIN_NAMESPACE();
-const char *argv0;
+std::string argv0;
+
+/**
+ *
+ */
+void
+printVersion()
+{
+        printf("Copyright (C) 2010 Thomas Habets\n"
+               "License GPLv2: GNU GPL version 2 or later "
+               "<http://gnu.org/licenses/gpl-2.0.html>\n"
+               "This is free software: you are free to change and "
+               "redistribute it.\n"
+               "There is NO WARRANTY, to the extent permitted by law.\n");
+        exit(EXIT_SUCCESS);
+}
 
 /**
  *
@@ -48,12 +67,17 @@ const char *argv0;
 void
 usage(int err)
 {
-        printf("ClipSniff %s, by Thomas Habets <thomas@habets.pp.se>\n"
-               "Usage: %s [ -h ] [ -w <filename> ]\n"
-               "Report bugs to: thomas@habets.pp.se"
-               "ClipSniff home page: <http://www.habets.pp.se/synscan/>"
-               "Development repo: http://github.com/ThomasHabets/clipsniff"
-               , argv0);
+        printf("Usage: %s [ -hV ] [ -d <display> ] [ -w <filename> ]\n"
+               "\n"
+               "\t-d <display>     Select display. Default to $DISPLAY\n"
+               "\t-h, --help       Show this help text\n"
+               "\t-V, --version    Show version.\n"
+               "\t-w <filename>    Output sqlite database\n"
+               "\n"
+               "Report bugs to: thomas@habets.pp.se\n"
+               "ClipSniff home page: <http://www.habets.pp.se/synscan/>\n"
+               "Development repo: http://github.com/ThomasHabets/clipsniff\n"
+               , argv0.c_str());
         exit(err);
 }
 
@@ -298,18 +322,35 @@ END_NAMESPACE();
 int
 main(int argc, char**argv)
 {
+        printf("ClipSniff %s\n", PACKAGE_VERSION);
         argv0 = argv[0];
         std::string outputFile, display;
 
+        { /* handle GNU options */
+                int c;
+                for (c = 1; c < argc; c++) {
+                        if (!strcmp(argv[c], "--")) {
+                                break;
+                        } else if (!strcmp(argv[c], "--help")) {
+                                usage(EXIT_SUCCESS);
+                        } else if (!strcmp(argv[c], "--version")) {
+                                printVersion();
+                        }
+                }
+        }
+
         // option parsing
         int opt;
-        while ((opt = getopt(argc, argv, "hw:")) != -1) {
+        while ((opt = getopt(argc, argv, "hd:Vw:")) != -1) {
                 switch (opt) {
                 case 'h':
                         usage(EXIT_SUCCESS);
                         break;
                 case 'w':
                         outputFile = optarg;
+                        break;
+                case 'V':
+                        printVersion();
                         break;
                 case 'd':
                         display = optarg;

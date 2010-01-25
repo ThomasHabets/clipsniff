@@ -30,10 +30,13 @@ Installing
 make
 make install
 
-CREATE TABLE clipboard(
-       ts datetime not null,
-       name text not null,
-       data text not null);
+Create output file:
+
+$ sqlite3 foo.db
+sqlite> CREATE TABLE clipboard(
+          ts datetime not null,
+          name text not null,
+          data text not null);
 
 
 Helpful links when coding Xlib
