@@ -35,6 +35,7 @@ Create output file:
 $ sqlite3 foo.db
 sqlite> CREATE TABLE clipboard(
           ts datetime not null,
+          owner text not null,
           name text not null,
           data text not null);
 

@@ -81,6 +81,9 @@ usage(int err)
         exit(err);
 }
 
+/**
+ *
+ */
 class ErrBase: public std::exception {
         const std::string msg;
 public:
@@ -98,13 +101,6 @@ class ClipSniff {
         Display *display;
         std::string displayName;
         Window myWindow;
-        class ErrBase: public std::exception {
-                const std::string msg;
-        public:
-                ErrBase(const std::string &msg):msg(msg)  {   }
-                const char *what() const throw() { return msg.c_str(); }
-                ~ErrBase() throw() {};
-        };
 
         Atom getAtom(const std::string &atom);
 public:
@@ -113,6 +109,7 @@ public:
         std::pair<std::string, std::string> get();
 
         std::string getOwner(const std::string &atom = "PRIMARY");
+        std::pair<std::string,std::string> getOwners();
 };
 
 /**
@@ -143,6 +140,16 @@ ClipSniff::get()
 {
         return std::pair<std::string, std::string>(getData(),
                                                    getData("CLIPBOARD"));
+}
+
+/**
+ * Get both clipboard owners as a pair
+ */
+std::pair<std::string, std::string>
+ClipSniff::getOwners()
+{
+        return std::pair<std::string, std::string>(getOwner(),
+                                                   getOwner("CLIPBOARD"));
 }
 
 /**
@@ -241,8 +248,14 @@ ClipSniff::ClipSniff(const std::string &displ)
 
 BEGIN_NAMESPACE();
 
+/**
+ *
+ */
 void
-saveDb(const std::string &which, const std::string &data, sqlite3_stmt *stmt)
+saveDb(const std::string &which,
+       const std::string &data,
+       const std::string &owner,
+       sqlite3_stmt *stmt)
 {
         sqlite3_reset(stmt);
 
@@ -264,15 +277,23 @@ saveDb(const std::string &which, const std::string &data, sqlite3_stmt *stmt)
                 throw ErrBase("sqlite3_bind_text(2)");
         }
         if (SQLITE_OK != sqlite3_bind_text(stmt,3,
-                                           data.c_str(),data.size(),
+                                           owner.c_str(),owner.size(),
                                            SQLITE_TRANSIENT)) {
                 throw ErrBase("sqlite3_bind_text(3)");
+        }
+        if (SQLITE_OK != sqlite3_bind_text(stmt,4,
+                                           data.c_str(),data.size(),
+                                           SQLITE_TRANSIENT)) {
+                throw ErrBase("sqlite3_bind_text(4)");
         }
         if (SQLITE_DONE != sqlite3_step(stmt)) {
                 throw ErrBase("sqlite3_step()");
         }
 }
 
+/**
+ *
+ */
 void
 dbStore(const std::string &display, const std::string &outputFile)
 {
@@ -284,8 +305,8 @@ dbStore(const std::string &display, const std::string &outputFile)
         sqlite3_stmt *stmt;
         if (SQLITE_OK != sqlite3_prepare_v2(db,
                                             "INSERT INTO clipboard"
-                                            " (ts,name,data)"
-                                            " VALUES(?,?,?)",
+                                            " (ts,name,owner,data)"
+                                            " VALUES(?,?,?,?)",
                                             -1,
                                             &stmt,
                                             NULL)) {
@@ -294,18 +315,19 @@ dbStore(const std::string &display, const std::string &outputFile)
         ClipSniff cs(display);
         std::pair<std::string,std::string> lastData;
         for(;;) {
-                std::pair<std::string,std::string> data;
+                std::pair<std::string,std::string> data, owners;
                 data = cs.get();
                 if (data == lastData) {
                         sleep(1);
                         continue;
                 }
 
+                owners = cs.getOwners();
                 if (data.first != lastData.first) {
-                        saveDb("PRIMARY", data.first, stmt);
+                        saveDb("PRIMARY", data.first, owners.first, stmt);
                 }
                 if (data.second != lastData.second) {
-                        saveDb("CLIPBOARD", data.second, stmt);
+                        saveDb("CLIPBOARD", data.second, owners.second, stmt);
                 }
                 
 
