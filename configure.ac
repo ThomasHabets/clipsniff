@@ -14,8 +14,8 @@ AC_PROG_CC
 AC_PROG_INSTALL
 
 # Checks for libraries.
-AC_CHECK_LIB([X11], [XPending])
-AC_CHECK_LIB([sqlite3], [sqlite3_open])
+AC_CHECK_LIB([X11], [XPending],,[AC_MSG_ERROR([libX11 not found])])
+AC_CHECK_LIB([sqlite3], [sqlite3_open],,[AC_MSG_ERROR([libsqlite3 not found])])
 
 # Checks for header files.
 AC_PATH_X

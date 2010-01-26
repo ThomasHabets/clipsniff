@@ -3975,6 +3975,10 @@ _ACEOF
 
   LIBS="-lX11 $LIBS"
 
+else
+  { { echo "$as_me:$LINENO: error: libX11 not found" >&5
+echo "$as_me: error: libX11 not found" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 
@@ -4046,6 +4050,10 @@ _ACEOF
 
   LIBS="-lsqlite3 $LIBS"
 
+else
+  { { echo "$as_me:$LINENO: error: libsqlite3 not found" >&5
+echo "$as_me: error: libsqlite3 not found" >&2;}
+   { (exit 1); exit 1; }; }
 fi
 
 
